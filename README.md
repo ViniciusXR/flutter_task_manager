@@ -350,6 +350,11 @@ Card de estatísticas na tela principal:
 
 **Imagem 7 - Filtro por estado das tarefas**
 
+
+<img width="1280" height="2856" alt="Screenshot_1761247323" src="https://github.com/user-attachments/assets/94ab00f3-db85-4288-9211-b655e25560ee" />
+
+**Imagem 8 - Push notification lembrando a tarefa**
+
 ---
 
 ## 📊 Relatório Técnico - Laboratório 2: Interface Profissional
