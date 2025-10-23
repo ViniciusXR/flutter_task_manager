@@ -1,11 +1,20 @@
 import 'package:flutter/material.dart';
 import '../models/task.dart';
+import '../models/category.dart';
 import '../services/database_service.dart';
+import '../services/notification_service.dart';
 import '../widgets/task_card.dart';
 import 'task_form_screen.dart';
 
 class TaskListScreen extends StatefulWidget {
-  const TaskListScreen({super.key});
+  final Function(ThemeMode)? onThemeChanged;
+  final ThemeMode? currentThemeMode;
+  
+  const TaskListScreen({
+    super.key,
+    this.onThemeChanged,
+    this.currentThemeMode,
+  });
 
   @override
   State<TaskListScreen> createState() => _TaskListScreenState();
@@ -14,9 +23,11 @@ class TaskListScreen extends StatefulWidget {
 class _TaskListScreenState extends State<TaskListScreen> {
   List<Task> _tasks = [];
   String _filter = 'all'; // all, completed, pending
-  String _sortBy = 'date'; // date, priority, title
+  String _sortBy = 'date'; // date, priority, title, dueDate
   String _searchQuery = '';
+  String? _categoryFilter; // null = todas categorias
   bool _isLoading = false;
+  final _notificationService = NotificationService();
 
   @override
   void initState() {
@@ -46,6 +57,11 @@ class _TaskListScreenState extends State<TaskListScreen> {
         break;
     }
     
+    // Filtro por categoria
+    if (_categoryFilter != null) {
+      tasks = tasks.where((t) => t.categoryId == _categoryFilter).toList();
+    }
+    
     // Filtro por busca
     if (_searchQuery.isNotEmpty) {
       tasks = tasks.where((t) {
@@ -67,6 +83,15 @@ class _TaskListScreenState extends State<TaskListScreen> {
       case 'title':
         tasks.sort((a, b) => a.title.toLowerCase().compareTo(b.title.toLowerCase()));
         break;
+      case 'dueDate':
+        tasks.sort((a, b) {
+          // Tarefas sem data de vencimento vão para o final
+          if (a.dueDate == null && b.dueDate == null) return 0;
+          if (a.dueDate == null) return 1;
+          if (b.dueDate == null) return -1;
+          return a.dueDate!.compareTo(b.dueDate!);
+        });
+        break;
       case 'date':
       default:
         tasks.sort((a, b) => b.createdAt.compareTo(a.createdAt));
@@ -78,6 +103,20 @@ class _TaskListScreenState extends State<TaskListScreen> {
   Future<void> _toggleTask(Task task) async {
     final updated = task.copyWith(completed: !task.completed);
     await DatabaseService.instance.update(updated);
+    
+    // Se a tarefa foi completada, cancelar notificação
+    if (updated.completed) {
+      await _notificationService.cancelNotification(task.id);
+    } else if (updated.reminderTime != null) {
+      // Se foi desmarcada e tem lembrete, reagendar
+      await _notificationService.scheduleTaskReminder(
+        taskId: updated.id,
+        title: updated.title,
+        description: updated.description,
+        scheduledTime: updated.reminderTime!,
+      );
+    }
+    
     await _loadTasks();
   }
 
@@ -142,6 +181,47 @@ class _TaskListScreenState extends State<TaskListScreen> {
         foregroundColor: Colors.white,
         elevation: 2,
         actions: [
+          // Botão de Tema
+          if (widget.onThemeChanged != null)
+            PopupMenuButton<ThemeMode>(
+              icon: const Icon(Icons.brightness_6),
+              tooltip: 'Tema',
+              onSelected: (mode) {
+                widget.onThemeChanged!(mode);
+              },
+              itemBuilder: (context) => [
+                const PopupMenuItem(
+                  value: ThemeMode.light,
+                  child: Row(
+                    children: [
+                      Icon(Icons.brightness_7),
+                      SizedBox(width: 8),
+                      Text('Claro'),
+                    ],
+                  ),
+                ),
+                const PopupMenuItem(
+                  value: ThemeMode.dark,
+                  child: Row(
+                    children: [
+                      Icon(Icons.brightness_2),
+                      SizedBox(width: 8),
+                      Text('Escuro'),
+                    ],
+                  ),
+                ),
+                const PopupMenuItem(
+                  value: ThemeMode.system,
+                  child: Row(
+                    children: [
+                      Icon(Icons.brightness_auto),
+                      SizedBox(width: 8),
+                      Text('Sistema'),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           // Menu de Ordenação
           PopupMenuButton<String>(
             icon: const Icon(Icons.sort),
@@ -154,7 +234,17 @@ class _TaskListScreenState extends State<TaskListScreen> {
                   children: [
                     Icon(Icons.calendar_today),
                     SizedBox(width: 8),
-                    Text('Por Data'),
+                    Text('Por Data de Criação'),
+                  ],
+                ),
+              ),
+              const PopupMenuItem(
+                value: 'dueDate',
+                child: Row(
+                  children: [
+                    Icon(Icons.event),
+                    SizedBox(width: 8),
+                    Text('Por Vencimento'),
                   ],
                 ),
               ),
@@ -178,6 +268,36 @@ class _TaskListScreenState extends State<TaskListScreen> {
                   ],
                 ),
               ),
+            ],
+          ),
+          // Filtro de Categoria
+          PopupMenuButton<String?>(
+            icon: const Icon(Icons.category),
+            tooltip: 'Filtrar por Categoria',
+            onSelected: (value) => setState(() => _categoryFilter = value),
+            itemBuilder: (context) => [
+              const PopupMenuItem(
+                value: null,
+                child: Row(
+                  children: [
+                    Icon(Icons.all_inclusive),
+                    SizedBox(width: 8),
+                    Text('Todas Categorias'),
+                  ],
+                ),
+              ),
+              ...Category.predefinedCategories.map((category) {
+                return PopupMenuItem(
+                  value: category.id,
+                  child: Row(
+                    children: [
+                      Icon(category.icon, color: category.color),
+                      const SizedBox(width: 8),
+                      Text(category.name),
+                    ],
+                  ),
+                );
+              }),
             ],
           ),
           // Filtro

@@ -7,6 +7,9 @@ class Task {
   final bool completed;
   final String priority;
   final DateTime createdAt;
+  final DateTime? dueDate;
+  final String categoryId;
+  final DateTime? reminderTime;
 
   Task({
     String? id,
@@ -15,6 +18,9 @@ class Task {
     this.completed = false,
     this.priority = 'medium',
     DateTime? createdAt,
+    this.dueDate,
+    this.categoryId = 'work',
+    this.reminderTime,
   })  : id = id ?? const Uuid().v4(),
         createdAt = createdAt ?? DateTime.now();
 
@@ -26,6 +32,9 @@ class Task {
       'completed': completed ? 1 : 0,
       'priority': priority,
       'createdAt': createdAt.toIso8601String(),
+      'dueDate': dueDate?.toIso8601String(),
+      'categoryId': categoryId,
+      'reminderTime': reminderTime?.toIso8601String(),
     };
   }
 
@@ -37,6 +46,9 @@ class Task {
       completed: map['completed'] == 1,
       priority: map['priority'] ?? 'medium',
       createdAt: DateTime.parse(map['createdAt']),
+      dueDate: map['dueDate'] != null ? DateTime.parse(map['dueDate']) : null,
+      categoryId: map['categoryId'] ?? 'work',
+      reminderTime: map['reminderTime'] != null ? DateTime.parse(map['reminderTime']) : null,
     );
   }
 
@@ -45,6 +57,11 @@ class Task {
     String? description,
     bool? completed,
     String? priority,
+    DateTime? dueDate,
+    String? categoryId,
+    DateTime? reminderTime,
+    bool clearDueDate = false,
+    bool clearReminderTime = false,
   }) {
     return Task(
       id: id,
@@ -53,6 +70,14 @@ class Task {
       completed: completed ?? this.completed,
       priority: priority ?? this.priority,
       createdAt: createdAt,
+      dueDate: clearDueDate ? null : (dueDate ?? this.dueDate),
+      categoryId: categoryId ?? this.categoryId,
+      reminderTime: clearReminderTime ? null : (reminderTime ?? this.reminderTime),
     );
+  }
+
+  bool get isOverdue {
+    if (dueDate == null || completed) return false;
+    return DateTime.now().isAfter(dueDate!);
   }
 }

@@ -20,8 +20,9 @@ class DatabaseService {
 
     return await openDatabase(
       path,
-      version: 1,
+      version: 2, // Incrementado para migração
       onCreate: _createDB,
+      onUpgrade: _upgradeDB,
     );
   }
 
@@ -33,9 +34,21 @@ class DatabaseService {
         description TEXT,
         completed INTEGER NOT NULL,
         priority TEXT NOT NULL,
-        createdAt TEXT NOT NULL
+        createdAt TEXT NOT NULL,
+        dueDate TEXT,
+        categoryId TEXT NOT NULL DEFAULT 'work',
+        reminderTime TEXT
       )
     ''');
+  }
+
+  Future<void> _upgradeDB(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      // Adicionar novos campos se estiver migrando da versão 1 para 2
+      await db.execute('ALTER TABLE tasks ADD COLUMN dueDate TEXT');
+      await db.execute('ALTER TABLE tasks ADD COLUMN categoryId TEXT NOT NULL DEFAULT "work"');
+      await db.execute('ALTER TABLE tasks ADD COLUMN reminderTime TEXT');
+    }
   }
 
   Future<Task> create(Task task) async {
