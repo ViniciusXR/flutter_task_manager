@@ -315,6 +315,36 @@ Card de estatísticas na tela principal:
 
 ---
 
+## Screenshots
+
+<img width="1280" height="2856" alt="Screenshot_1761245579" src="https://github.com/user-attachments/assets/f2c2ee7f-8796-4369-8615-b1f5016bb8a6" />
+_Imagem 1 - Tela Inicial do Aplicativo_
+
+
+<img width="1280" height="2856" alt="Screenshot_1761245592" src="https://github.com/user-attachments/assets/53886d7b-2703-434b-80f0-e0369e0219df" />
+_Imagem 2 - Tela para criação de uma nova tarefa_
+
+<img width="1280" height="2856" alt="Screenshot_1761245598" src="https://github.com/user-attachments/assets/78790ce4-14a7-4c44-a30b-a4e3d5e315fc" />
+_Imagem 3 - Tela para edição de tarefa_
+
+
+<img width="1280" height="2856" alt="Screenshot_1761246123" src="https://github.com/user-attachments/assets/01131401-5a0a-442b-b7d0-ecb7bc28d068" />
+_Imagem 4 - Modo noturno_
+
+
+<img width="1280" height="2856" alt="Screenshot_1761246140" src="https://github.com/user-attachments/assets/70cb5f22-fc74-45ae-817a-8005c29992e4" />
+_Imagem 5 - Filtro de tarefas_
+
+
+<img width="1280" height="2856" alt="Screenshot_1761246145" src="https://github.com/user-attachments/assets/5b040c6c-55b0-4f26-be3b-ff9270fe6823" />
+_Imagem 6 - Filtro por categorias das tarefas_
+
+
+<img width="1280" height="2856" alt="Screenshot_1761246152" src="https://github.com/user-attachments/assets/8f3f855d-d37e-483d-96d8-62f8412a0015" />
+_Imagem 7 - Filtro por estado das tarefas_
+
+---
+
 ## 📊 Relatório Técnico - Laboratório 2: Interface Profissional
 
 ### 1. Implementações Realizadas
