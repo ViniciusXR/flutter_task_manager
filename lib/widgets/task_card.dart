@@ -60,6 +60,7 @@ class TaskCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final dueDateFormat = DateFormat('dd/MM/yyyy');
     final category = Category.findById(task.categoryId);
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -134,7 +135,7 @@ class TaskCard extends StatelessWidget {
                             : null,
                         color: task.completed 
                             ? Colors.grey 
-                            : Colors.black,
+                            : (isDarkMode ? Colors.white : Colors.black),
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -148,7 +149,7 @@ class TaskCard extends StatelessWidget {
                           fontSize: 14,
                           color: task.completed 
                               ? Colors.grey.shade400 
-                              : Colors.grey.shade700,
+                              : (isDarkMode ? Colors.white70 : Colors.grey.shade700),
                           decoration: task.completed 
                               ? TextDecoration.lineThrough 
                               : null,

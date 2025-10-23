@@ -25,7 +25,7 @@ class _TaskListScreenState extends State<TaskListScreen> {
   String _filter = 'all'; // all, completed, pending
   String _sortBy = 'date'; // date, priority, title, dueDate
   String _searchQuery = '';
-  String? _categoryFilter; // null = todas categorias
+  String _categoryFilter = 'all'; // 'all' = todas categorias, ou ID da categoria específica
   bool _isLoading = false;
   final _notificationService = NotificationService();
 
@@ -57,8 +57,8 @@ class _TaskListScreenState extends State<TaskListScreen> {
         break;
     }
     
-    // Filtro por categoria
-    if (_categoryFilter != null) {
+    // Filtro por categoria (só aplica se houver uma categoria específica selecionada)
+    if (_categoryFilter != 'all') {
       tasks = tasks.where((t) => t.categoryId == _categoryFilter).toList();
     }
     
@@ -271,13 +271,17 @@ class _TaskListScreenState extends State<TaskListScreen> {
             ],
           ),
           // Filtro de Categoria
-          PopupMenuButton<String?>(
+          PopupMenuButton<String>(
             icon: const Icon(Icons.category),
             tooltip: 'Filtrar por Categoria',
-            onSelected: (value) => setState(() => _categoryFilter = value),
+            onSelected: (value) {
+              setState(() {
+                _categoryFilter = value;
+              });
+            },
             itemBuilder: (context) => [
               const PopupMenuItem(
-                value: null,
+                value: 'all',
                 child: Row(
                   children: [
                     Icon(Icons.all_inclusive),
